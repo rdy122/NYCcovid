@@ -1,0 +1,32 @@
+#import data from 11/2019
+rawturnstile1119 <- read.csv(file="nyc taxi data/turnstile_191123.txt", head=TRUE,sep=",")
+
+# Create a working dataframe
+turnstile19 <- rawturnstile1119
+
+# Keep Only Regular
+turnstile19 <- turnstile19[which(turnstile19$DESC == "REGULAR" | turnstile19$DESC == "RECOVR AUD"),]
+
+turnstile19$diff <- ave(turnstile19$ENTRIES, turnstile19$BOOTH, turnstile19$SCP, FUN=function(x) c(0, diff(x)))
+
+# Remove negative entries
+turnstile19 <- turnstile19[which(turnstile19$diff >  0),]
+
+daily_entries19 <- aggregate(cbind(turnstile19$diff)~turnstile19$STATION+turnstile19$DATE, data=turnstile19, sum, na.rm=TRUE)
+
+colnames(daily_entries19)[1] <- "STATION"
+colnames(daily_entries19)[2] <- "DATE"
+colnames(daily_entries19)[3] <- "ENTRIES"
+
+#import data from 11/2020 and repeat
+rawturnstile1120 <- read.csv(file="nyc taxi data/turnstile_201121.txt", head=TRUE,sep=",")
+turnstile20 <- rawturnstile1120
+turnstile20 <- turnstile20[which(turnstile20$DESC == "REGULAR" | turnstile20$DESC == "RECOVR AUD"),]
+turnstile20$diff <- ave(turnstile20$ENTRIES, turnstile20$BOOTH, turnstile20$SCP, FUN=function(x) c(0, diff(x)))s
+turnstile20 <- turnstil20[which(turnstile20$diff >  0),]
+daily_entries20 <- aggregate(cbind(turnstile20$diff)~turnstile20$STATION+turnstile20$DATE, data=turnstile20, sum, na.rm=TRUE)
+colnames(daily_entries20)[1] <- "STATION"
+colnames(daily_entries20)[2] <- "DATE"
+colnames(daily_entries20)[3] <- "ENTRIES"
+
+final_turnstile <- rbind(daily_entries19,daily_entries20)
